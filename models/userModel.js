@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcrypt');
+const parse = require('nodemon/lib/cli/parse');
 
 const userSchema = new mongoose.Schema({
   username: {
@@ -9,6 +10,7 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
+    unique: true,
     required: [true, 'Please enter the email'],
     validator: [validator.isEmail, 'Please Enter correct email'],
   },
@@ -20,6 +22,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: false,
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -29,6 +32,23 @@ userSchema.pre('save', async function (next) {
 
   next();
 });
+
+userSchema.methods.comparePassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (jwtTimeStamp) {
+  if (this.passwordChangedAt) {
+    const timeStamp = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+
+    return jwtTimeStamp < timeStamp;
+  }
+
+  return false;
+};
 
 const User = mongoose.model('User', userSchema);
 
