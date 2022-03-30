@@ -1,6 +1,17 @@
 const User = require('./../models/userModel');
 
 const jwt = require('jsonwebtoken');
+const res = require('express/lib/response');
+
+const sendCookie = (res, token) => {
+  res.cookie('jwt', token, {
+    expires: new Date(
+      Date.now() + process.env.JWT__COOKIE__EXPIRES * 24 * 60 * 60 * 1000
+    ),
+    // secure: true,
+    httpOnly: true,
+  });
+};
 
 const tokenAssigner = (id) => {
   return jwt.sign({ id }, process.env.JSON__TOKEN__SECRET, {
@@ -12,6 +23,18 @@ exports.signup = async (req, res) => {
   try {
     const newUser = await User.create(req.body);
     const token = tokenAssigner(newUser._id);
+
+    // res.cookie('jwt', token, {
+    //   expires: new Date(
+    //     Date.now() + process.env.JWT__COOKIE__EXPIRES * 24 * 60 * 60 * 1000
+    //   ),
+    //   // secure: true,
+    //   httpOnly: true,
+    // });
+
+    sendCookie(res, token);
+
+    newUser.password = undefined;
 
     res.status(201).json({
       status: 'success',
@@ -36,6 +59,16 @@ exports.login = async (req, res) => {
     if (user && correct) {
       const token = tokenAssigner(user._id);
 
+      sendCookie(res, token);
+
+      // res.cookie('jwt', token, {
+      //   expires: new Date(
+      //     Date.now() + process.env.JWT__COOKIE__EXPIRES * 24 * 60 * 60 * 1000
+      //   ),
+      //   // secure: true,
+      //   httpOnly: true,
+      // });
+
       res.status(200).json({
         status: 'success',
         token,
@@ -45,7 +78,7 @@ exports.login = async (req, res) => {
   } catch (err) {
     res.status(400).json({
       status: 'fail',
-      error: err.message,
+      error: err.stack,
     });
   }
 };

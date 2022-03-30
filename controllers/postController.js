@@ -10,6 +10,8 @@ exports.getAllPosts = async (req, res) => {
 };
 
 exports.setPost = async (req, res) => {
+  console.log(req.file);
+  console.log(req.body);
   const data = await Post.create(req.body);
 
   res.status(200).json({
