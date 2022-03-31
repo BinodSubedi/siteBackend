@@ -10,7 +10,11 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a body to the post'],
   },
-  imageeUrl: String,
+  imageUrl: String,
+  imageName: {
+    type: String,
+    required: [true, 'please give the image name'],
+  },
   source: [String],
 });
 
