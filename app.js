@@ -6,6 +6,8 @@ const cors = require('cors');
 
 const app = express();
 
+app.use(express.static('./../siteFront-end/build'));
+
 app.use(express.json());
 
 app.use(cookieParser());

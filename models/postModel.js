@@ -4,6 +4,7 @@ const { post } = require('../routes/postRoute');
 const postSchema = new mongoose.Schema({
   title: {
     type: String,
+    unique: true,
     required: [true, 'Please Provide a title to the post'],
   },
   bodyText: {
