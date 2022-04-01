@@ -3,13 +3,21 @@ const User = require('./../models/userModel');
 const jwt = require('jsonwebtoken');
 const res = require('express/lib/response');
 
+const sendFakeCookie = (res) => {
+  res.cookie('jwt', '0', {
+    expires: new Date(Date.now() + process.env.JWT__COOKIE__EXPIRES / 90),
+    // secure: false,
+    httpOnly: false,
+  });
+};
+
 const sendCookie = (res, token) => {
   res.cookie('jwt', token, {
     expires: new Date(
       Date.now() + process.env.JWT__COOKIE__EXPIRES * 24 * 60 * 60 * 1000
     ),
-    // secure: true,
-    httpOnly: true,
+    // secure: false,
+    httpOnly: false,
   });
 };
 
@@ -81,4 +89,18 @@ exports.login = async (req, res) => {
       error: err.stack,
     });
   }
+};
+
+exports.pushLogin = (req, res) => {
+  res.status(200).json({
+    status: 'success',
+  });
+};
+
+exports.logout = (req, res) => {
+  sendFakeCookie(res);
+
+  res.status(200).json({
+    status: 'success',
+  });
 };
